@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import firebase from "firebase/app";
 import "firebase/auth";
 import firebaseConfig from "./FireBase.config";
+import "./Login.css";
+import { userContext } from "../../App";
+import { useHistory, useLocation } from "react-router";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -10,6 +13,13 @@ if (!firebase.apps.length) {
 }
 
 const Login = () => {
+  const [loggedInUser, setLoggedInUser] = useContext(userContext);
+
+  const history = useHistory();
+  const location = useLocation();
+
+  const { from } = location.state || { from: { pathname: "/" } };
+
   // google sign in provider:
   var provider = new firebase.auth.GoogleAuthProvider();
   const handleGoogleSignin = () => {
@@ -18,13 +28,11 @@ const Login = () => {
       .signInWithPopup(provider)
       .then((result) => {
         /** @type {firebase.auth.OAuthCredential} */
-        // var credential = result.credential;
-
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        // var token = credential.accessToken;
-        // The signed-in user info.
-        var user = result.user;
-        console.log(user);
+        const { displayName, email } = result.user;
+        const signInUser = { name: displayName, email: email };
+        setLoggedInUser(signInUser);
+        history.replace(from);
+        console.log(displayName, email);
         // ...
       })
       .catch((error) => {
@@ -32,7 +40,7 @@ const Login = () => {
       });
   };
   return (
-    <div>
+    <div className="login-form">
       <h1>This is Login</h1>
       <button onClick={handleGoogleSignin}>G-Sign in</button>
     </div>
