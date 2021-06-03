@@ -31,12 +31,27 @@ const Login = () => {
         const { displayName, email } = result.user;
         const signInUser = { name: displayName, email: email };
         setLoggedInUser(signInUser);
+        storeAuthToken();
         history.replace(from);
         console.log(displayName, email);
         // ...
       })
       .catch((error) => {
         console.log(error);
+      });
+  };
+
+  const storeAuthToken = () => {
+    firebase
+      .auth()
+      .currentUser.getIdToken(/* forceRefresh */ true)
+      .then(function (idToken) {
+        sessionStorage.setItem("token", idToken);
+        // Send token to your backend via HTTPS
+        // ...
+      })
+      .catch(function (error) {
+        // Handle error
       });
   };
   return (
